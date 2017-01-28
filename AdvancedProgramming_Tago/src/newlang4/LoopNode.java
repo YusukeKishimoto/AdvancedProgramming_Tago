@@ -20,7 +20,7 @@ public class LoopNode extends Node{
 	public boolean Parse() throws Exception{
 		LexicalUnit lu = env.getInput().get();
 		if(lu.getType() == LexicalType.DO){			
-			System.out.println("DO : ");
+			//System.out.println("DO : ");
 			//DOの次
 			lu = env.getInput().get();
 			//NLの場合
@@ -41,7 +41,7 @@ public class LoopNode extends Node{
 				if(lu.getType() != LexicalType.UNTIL && lu.getType() != LexicalType.WHILE) return false;
 				loopunit = lu;
 				
-				System.out.println(loopunit);
+				//System.out.println(loopunit);
 				
 				lu = env.getInput().get();
 				env.getInput().unget(lu);
@@ -53,7 +53,7 @@ public class LoopNode extends Node{
 			if(lu.getType() == LexicalType.UNTIL || lu.getType() == LexicalType.WHILE){
 				conddecision = true;
 				loopunit = lu;
-				System.out.println(loopunit);
+				//System.out.println(loopunit);
 				lu = env.getInput().get();
 				env.getInput().unget(lu);
 				
@@ -70,14 +70,14 @@ public class LoopNode extends Node{
 
 				lu = env.getInput().get();
 				if(lu.type == LexicalType.LOOP){
-					System.out.println("LOOP");
+					//System.out.println("LOOP");
 					return true;
 				}
 				return false;
 			}
 		}
 		if(lu.getType() == LexicalType.WHILE){
-			System.out.println("WHILE: ");
+			//System.out.println("WHILE: ");
 			//while文はDO..UNTILと
 			loopunit = new LexicalUnit(LexicalType.WHILE);
 			conddecision = true;

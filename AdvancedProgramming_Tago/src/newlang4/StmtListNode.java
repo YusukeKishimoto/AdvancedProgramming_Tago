@@ -42,7 +42,10 @@ public class StmtListNode extends Node {
 			if(lu.getType() == LexicalType.NL) continue;
 			//EOFだったらおしまい
 			//System.out.print(lu);
-			if(lu.type==LexicalType.EOF)return true;
+			if(lu.type==LexicalType.END){
+				env.getInput().unget(lu);
+				return true;
+			}
 			if(lu.type==LexicalType.NEXT)return true;
 			if(lu.type==LexicalType.ENDIF || lu.type == LexicalType.ELSE ||
 			   lu.type == LexicalType.ELSEIF || lu.type == LexicalType.LOOP || lu.type == LexicalType.WEND){

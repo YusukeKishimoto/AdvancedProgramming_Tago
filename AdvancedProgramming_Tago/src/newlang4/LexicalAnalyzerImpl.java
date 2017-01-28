@@ -171,6 +171,12 @@ public class LexicalAnalyzerImpl implements LexicalAnalyzer {
 		//残るは改行のみ！
 		return new LexicalUnit(LexicalType.NL);
 	}
+	@Override
+	public LexicalUnit peek() throws Exception{
+		LexicalUnit lu = get();
+		unget(lu);
+		return lu;
+	}
 	
 	@Override
 	public LexicalUnit get() throws Exception {
@@ -202,11 +208,13 @@ public class LexicalAnalyzerImpl implements LexicalAnalyzer {
 		
 		return null;
 	}
+	
 	@Override
 	public void unget(LexicalUnit token) {
 		// TODO Auto-generated method stub
 		buflexQueue.addFirst(token);		
 	}
+
 	@Override
 	public boolean expect(LexicalType type) {
 		// TODO Auto-generated method stub

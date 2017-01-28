@@ -28,7 +28,7 @@ public class AssignNode extends Node{
 			
 			if(lu.getType() != LexicalType.EQ) return null;
 			
-			System.out.print(first.value.getSValue()+"[ ");
+			//System.out.print(first.value.getSValue()+"[ ");
 			return new AssignNode(env);
 			
 		}catch (Exception e){
@@ -58,20 +58,6 @@ public class AssignNode extends Node{
 	public Value getValue() {
 		VariableNode v = (VariableNode)var;
 		v.setValue(expr.getValue());
-		/*
-		System.out.print(v.var_name+" -> ");
-		System.out.print(env.var_table.get(v.var_name).val.getType()+" ");
-		if(env.var_table.get(v.var_name).val.getType() == ValueType.INTEGER){			
-			System.out.println(env.var_table.get("a").val.getIValue());			
-		}
-		if(env.var_table.get(v.var_name).val.getType() == ValueType.DOUBLE){
-			System.out.println(env.var_table.get("a").val.getDValue());
-		}
-		if(env.var_table.get(v.var_name).val.getType() == ValueType.STRING){
-			System.out.println(env.var_table.get("a").val.getSValue());			
-		}
-		*/
-		//System.out.println(v.val);
 		return v.getValue();
 	}
 

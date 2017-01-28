@@ -38,16 +38,16 @@ public class StmtNode extends Node{
 		if(lu.getType() == LexicalType.END){
 			body = new Node(NodeType.END);
 			//<END>は捨てる
-			env.getInput().get();
+			//env.getInput().get();
 			System.out.println("\nEND!");
 			return true;
 		}
 		//FOR文のノード
 		body = ForNode.isMatch(env,lu);
 		if(body != null){
-			System.out.print("FOR[");
+			//System.out.print("FOR[");
 			if(body.Parse() == true){
-				System.out.println("];");
+				//System.out.println("];");
 				return true;
 			}
 			return false;
@@ -57,7 +57,7 @@ public class StmtNode extends Node{
 		body = CallSubNode.isMatch(env, lu);
 		if(body != null){
 			if(body.Parse() == true){
-				System.out.println("];");
+				//System.out.println("];");
 				return true;
 			}
 			return false;
@@ -67,7 +67,7 @@ public class StmtNode extends Node{
 		body = AssignNode.isMatch(env, lu);
 		if(body != null){
 			if(body.Parse() == true){
-				System.out.println(" ];");
+				//System.out.println(" ];");
 				return true;
 			}
 			return false ;

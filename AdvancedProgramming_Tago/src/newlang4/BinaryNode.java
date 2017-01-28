@@ -9,7 +9,6 @@ public class BinaryNode extends Node {
 	
 	Node operandFirst;
 	Node operandSecond;
-	
 	LexicalUnit operator;
 	
 	public BinaryNode(Environment env){
@@ -131,7 +130,7 @@ public class BinaryNode extends Node {
 		//exprノードの中身をそれぞれスタックしていこう
 		LexicalUnit lu = firstexpr;
 		if(lu.type == LexicalType.LITERAL){
-			System.out.print("\""+lu.value.getSValue()+"\"");
+			//System.out.print("\""+lu.value.getSValue()+"\"");
 			return new BinaryNode(makeOperandNode(lu),env);
 		}
 		while(true){
@@ -198,13 +197,13 @@ public class BinaryNode extends Node {
 					operandNodeDeque.addFirst(new BinaryNode(LEFT,RIGHT,operatorDeque.removeFirst(),env));
 				}
 				//テスト用
-				showExpr(operandUnit);
+				//showExpr(operandUnit);
 				//-----
 				return operandNodeDeque.removeLast();
 			}				
 			//return null;
 		}
-		showExpr(operandUnit);
+		//showExpr(operandUnit);
 		return new BinaryNode(operandNodeDeque.removeFirst(),env);
 	}
 

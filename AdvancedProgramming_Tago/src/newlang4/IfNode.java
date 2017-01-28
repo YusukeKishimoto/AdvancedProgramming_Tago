@@ -27,7 +27,7 @@ public class IfNode extends Node{
 		// IF
 		LexicalUnit lu = env.getInput().get();
 		
-		System.out.print("IF : ");
+		//System.out.print("IF : ");
 		
 		// condの先頭
 		lu = env.getInput().get();
@@ -60,13 +60,11 @@ public class IfNode extends Node{
 						while(true){
 							lu = env.getInput().get();
 							if(lu.type == LexicalType.ENDIF){
-								//System.out.println(CondAndStmtList.size());
 								return true;
-							}
-														
+							}														
 							if(lu.type == LexicalType.ELSE){
 								
-								System.out.print("ELSE : ");
+								//System.out.print("ELSE : ");
 								
 								lu = env.getInput().get();
 								if(lu.type != LexicalType.NL) return false;
@@ -86,7 +84,7 @@ public class IfNode extends Node{
 							}
 							if(lu.type == LexicalType.ELSEIF){
 								
-								System.out.print("ELSEIF : ");
+								//System.out.print("ELSEIF : ");
 								
 								lu = env.getInput().get();
 								env.getInput().unget(lu);
@@ -130,17 +128,15 @@ public class IfNode extends Node{
 			stmt = StmtNode.isMatch(env, lu);
 			if(stmt!=null){
 				
-				System.out.print("ELSE : ");
+				//System.out.print("ELSE : ");
 				
 				if(stmt.Parse()!=true) return false;
 				CondAndStmtList.add(stmt);
 				
 				lu = env.getInput().get();
 				if(lu.getType() == LexicalType.NL){
-					env.getInput().unget(lu);
-					
-					System.out.println(CondAndStmtList.size());
-					
+					env.getInput().unget(lu);					
+					//System.out.println(CondAndStmtList.size());
 					return true;
 				}
 			}			

@@ -41,7 +41,7 @@ public class CondNode extends Node{
 		}
 		LexicalUnit cond = env.getInput().get();
 		if(isCondOperator(cond)!=true) return null;
-		System.out.print(" "+cond.type+" ");
+		//System.out.print(" "+cond.type+" ");
 		
 		LexicalUnit lu = env.getInput().get();
 		env.getInput().unget(lu);

@@ -13,7 +13,7 @@ public class CallSubNode extends Node{
 		try{			
 			//System.out.println(first.value.getSValue());
 			if(env.library.containsKey(first.value.getSValue())){
-				System.out.print(first.value.getSValue()+"[ ");
+				//System.out.print(first.value.getSValue()+"[ ");
 				return new CallSubNode(env);
 			}
 			return null;
