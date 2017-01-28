@@ -20,7 +20,7 @@ public class BlockNode extends Node{
 		
 	}
 	public static Node isMatch(Environment env, LexicalUnit first){
-		if(firstSet.contains(first.type)){
+		if(!firstSet.contains(first.type)){
 			return null;
 		}
 		return new BlockNode(env);
@@ -39,7 +39,11 @@ public class BlockNode extends Node{
 		if(body != null){
 			return body.Parse();
 		}
-
+		
 		return false;
+	}
+	@Override
+	public Value getValue(){
+		return body.getValue();
 	}
 }

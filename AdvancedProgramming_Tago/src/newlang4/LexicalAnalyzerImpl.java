@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PushbackReader;
 import java.io.Reader;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,11 +13,15 @@ public class LexicalAnalyzerImpl implements LexicalAnalyzer {
 	PushbackReader source;
 	Map<String,LexicalUnit> reservedMap = new HashMap<String,LexicalUnit>();
 	
+	//ungetで戻すLexcalUnitを格納するよ
+	Deque<LexicalUnit> buflexQueue = new ArrayDeque<LexicalUnit>();
+	
 	public LexicalAnalyzerImpl(InputStream is){
 		Reader reader = new InputStreamReader(is);
 		source = new PushbackReader(reader);
 		
 		reservedMap.put("IF", new LexicalUnit(LexicalType.IF));
+		reservedMap.put("ENDIF", new LexicalUnit(LexicalType.ENDIF));
 		reservedMap.put("THEN", new LexicalUnit(LexicalType.THEN));
 		reservedMap.put("ELSE", new LexicalUnit(LexicalType.ELSE));
 		reservedMap.put("ELSEIF", new LexicalUnit(LexicalType.ELSEIF));
@@ -89,16 +95,23 @@ public class LexicalAnalyzerImpl implements LexicalAnalyzer {
 			if(ci == -1){
 				break;
 			}
-			c = (char)ci;
-			if(c == '.') isdouble = true;
+			c = (char)ci;			
+			if(c == '.'){
+				if(!isdouble){	
+					isdouble = true;
+					continue;
+				}
+				return null;
+			}
 			if(!isNumeric(c) && c != '.'){
 				source.unread(ci);
 				break;
 			}	
 		}
 
-		if(isdouble) return new LexicalUnit(LexicalType.DOUBLEVAL, new ValueImpl(ret));
-		return new LexicalUnit(LexicalType.INTVAL, new ValueImpl(ret));
+		if(isdouble) return new LexicalUnit(LexicalType.DOUBLEVAL, new ValueImpl(Double.parseDouble(ret)));
+		//return new LexicalUnit(LexicalType.INTVAL, new ValueImpl(ret));
+		return new LexicalUnit(LexicalType.INTVAL, new ValueImpl(Integer.parseInt(ret)));
 	}
 	
 	private LexicalUnit getLiteral() throws Exception{
@@ -111,7 +124,6 @@ public class LexicalAnalyzerImpl implements LexicalAnalyzer {
 			}
 			c= (char)ci;
 			if(c == '\"'){
-				ci = source.read();
 				break;
 			}
 			ret += c;
@@ -128,8 +140,8 @@ public class LexicalAnalyzerImpl implements LexicalAnalyzer {
 		if(c=='*') return new LexicalUnit(LexicalType.MUL);
 		if(c=='.') return new LexicalUnit(LexicalType.DOT);
 		if(c==',') return new LexicalUnit(LexicalType.COMMA);
-		if(c=='(') return new LexicalUnit(LexicalType.RP);
-		if(c==')') return new LexicalUnit(LexicalType.LP);
+		if(c=='(') return new LexicalUnit(LexicalType.LP);
+		if(c==')') return new LexicalUnit(LexicalType.RP);
 		
 		//=,<,>,<=,>=,=<,=>,<>の処理
 		if(c=='<'){
@@ -162,38 +174,46 @@ public class LexicalAnalyzerImpl implements LexicalAnalyzer {
 	
 	@Override
 	public LexicalUnit get() throws Exception {
-		int ci = source.read();
-		if(ci == -1){
-			return new LexicalUnit(LexicalType.EOF);
-		}		
-		char c =(char) ci;		
-		//スペースかタブの場合は読み飛ばす
-		while(c == ' ' || c == '\t'){
-			ci = source.read();
-			c = (char) ci;
+
+		//ungetされきたLexicalUnitが無い時に実行
+		if(buflexQueue.isEmpty()){
+			int ci = source.read();
+			if(ci == -1){
+				return new LexicalUnit(LexicalType.EOF);
+			}		
+			char c =(char) ci;		
+			//スペースかタブの場合は読み飛ばす
+			while(c == ' ' || c == '\t'){
+				ci = source.read();
+				c = (char) ci;
+			}
+			if(isAlpha(c))
+				return getAlpha(c);
+			if(isNumeric(c))
+				return getNumeric(c);
+			if(isLiteral(c))
+				return getLiteral();
+			if(isSymbol(c))
+				return getSymbol(c);
 		}
-		if(isAlpha(c))
-			return getAlpha(c);
-		if(isNumeric(c))
-			return getNumeric(c);
-		if(isLiteral(c))
-			return getLiteral();
-		if(isSymbol(c))
-			return getSymbol(c);
+		else{
+			return buflexQueue.removeFirst();
+		}
+		
 		return null;
 	}
-	
+	@Override
+	public void unget(LexicalUnit token) {
+		// TODO Auto-generated method stub
+		buflexQueue.addFirst(token);		
+	}
 	@Override
 	public boolean expect(LexicalType type) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	@Override
-	public void unget(LexicalUnit token) {
-		// TODO Auto-generated method stub
-		
-	}
+
 	
 	
 }

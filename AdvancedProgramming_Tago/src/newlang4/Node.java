@@ -4,6 +4,9 @@ public class Node {
     NodeType type;
     Environment env;
     
+    //BinaryNodeで一つの数字に対してNodeを持っているから値を覚えておかないと？
+    Value val;
+    
     public Node next;
 
     /** Creates a new instance of Node */
@@ -15,7 +18,12 @@ public class Node {
     public Node(Environment my_env) {
         env = my_env;
     }
-    
+    //追記
+    public Node(NodeType my_type, Value my_val){
+    	type = my_type;
+    	val = my_val;
+    }
+
     public NodeType getType() {
         return type;
     }
@@ -27,7 +35,7 @@ public class Node {
     public Value getValue() {
         return null;
     }
- 
+    
     public String toString() {
     	if (type == NodeType.END) return "END";
     	else return "Node";        

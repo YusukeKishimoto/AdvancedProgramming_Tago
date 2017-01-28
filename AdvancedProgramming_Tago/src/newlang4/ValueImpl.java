@@ -14,10 +14,25 @@ public class ValueImpl implements Value{
 	
 	public ValueImpl(int ivalue){
 		this.ivalue = ivalue;
+		this.dvalue = (double)ivalue;
+		this.type = ValueType.INTEGER;
 	}
 
 	public ValueImpl(String svalue) {
 		this.svalue = svalue;
+		this.type = ValueType.STRING;
+	}
+	public ValueImpl(double dvalue){
+		this.dvalue = dvalue;
+		if(dvalue == (int)dvalue){
+			this.type = ValueType.INTEGER;
+			this.ivalue = (int)dvalue;
+		}else{
+			this.type = ValueType.DOUBLE;			
+		}
+	}
+	public ValueImpl(boolean bvalue){
+		this.bvalue = bvalue;
 	}
 	
 	@Override

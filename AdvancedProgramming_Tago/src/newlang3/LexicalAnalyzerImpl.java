@@ -90,7 +90,13 @@ public class LexicalAnalyzerImpl implements LexicalAnalyzer {
 				break;
 			}
 			c = (char)ci;
-			if(c == '.') isdouble = true;
+			if(c == '.'){
+				if(!isdouble){
+					isdouble = true;
+					continue;
+				}
+				return null;
+			}
 			if(!isNumeric(c) && c != '.'){
 				source.unread(ci);
 				break;
@@ -111,7 +117,7 @@ public class LexicalAnalyzerImpl implements LexicalAnalyzer {
 			}
 			c= (char)ci;
 			if(c == '\"'){
-				ci = source.read();
+				//ci = source.read();
 				break;
 			}
 			ret += c;

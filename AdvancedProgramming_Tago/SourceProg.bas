@@ -1,5 +1,10 @@
-DIM i
-
-FOR i = 1 TO 100
-	PRINT "Hello World"
-NEXT i
+a = 2
+b = 10
+i = 3
+DO
+  a = a + 1
+  PRINT "HELLO"
+LOOP WHILE a > 2
+PRINT a
+PRINT "OK"
+END

@@ -2,7 +2,8 @@ package newlang4;
 
 public class AssignNode extends Node{
 	
-	Node body;
+	Node expr;
+	Node var;
 	
 	private AssignNode(Environment env){
 		super.env = env;
@@ -11,15 +12,23 @@ public class AssignNode extends Node{
 	
 	public static Node isMatch(Environment env, LexicalUnit first){
 		try{
-			if(first.getType() != LexicalType.NAME) return null;
+			//LexicalUnit first が NAME であるはずがない
+			//if(first.getType() != LexicalType.NAME) return null;
 			
-			LexicalUnit lu = env.getInput().get();
+			//firstを取得
+			LexicalUnit lu = env.getInput().get();;
+
+			//System.out.println(first);
+			//firstの次を取得
 			lu = env.getInput().get();
-			env.getInput().unget(first);
+			//System.out.println(lu);
+			
 			env.getInput().unget(lu);
-			{
+			env.getInput().unget(first);
+			
 			if(lu.getType() != LexicalType.EQ) return null;
 			
+			System.out.print(first.value.getSValue()+"[ ");
 			return new AssignNode(env);
 			
 		}catch (Exception e){
@@ -30,7 +39,40 @@ public class AssignNode extends Node{
 	}
 	@Override
 	public boolean Parse() throws Exception{
+		LexicalUnit name = env.getInput().get();
+		//lu = <EQ>
+		LexicalUnit lu = env.getInput().get();
+		//lu = <EQ>の次
+		lu = env.getInput().get();
+		env.getInput().unget(lu);
 		
+		var = VariableNode.isMatch(env, name);
+		expr = ExprNode.isMatch(env, lu);
+		if(expr != null){
+			return expr.Parse();
+		}
+		return false;
+	}
+	
+	@Override
+	public Value getValue() {
+		VariableNode v = (VariableNode)var;
+		v.setValue(expr.getValue());
+		/*
+		System.out.print(v.var_name+" -> ");
+		System.out.print(env.var_table.get(v.var_name).val.getType()+" ");
+		if(env.var_table.get(v.var_name).val.getType() == ValueType.INTEGER){			
+			System.out.println(env.var_table.get("a").val.getIValue());			
+		}
+		if(env.var_table.get(v.var_name).val.getType() == ValueType.DOUBLE){
+			System.out.println(env.var_table.get("a").val.getDValue());
+		}
+		if(env.var_table.get(v.var_name).val.getType() == ValueType.STRING){
+			System.out.println(env.var_table.get("a").val.getSValue());			
+		}
+		*/
+		//System.out.println(v.val);
+		return v.getValue();
 	}
 
 }
