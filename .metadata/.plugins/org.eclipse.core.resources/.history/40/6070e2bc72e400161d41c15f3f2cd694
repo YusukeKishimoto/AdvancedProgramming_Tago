@@ -1,0 +1,43 @@
+package newlang4;
+
+public class ForNode extends Node{
+	
+	AssignNode assign;
+	LexicalUnit intval;
+	Node stmt_list;
+	
+	private ForNode(Environment env){
+		super.env = env;
+	}
+	
+	public static Node isMatch(Environment env, LexicalUnit lu){
+		if(lu.type == LexicalType.FOR){
+			return new ForNode(env);
+		}
+		return null;
+	}
+	
+	
+	@Override
+	public boolean Parse() throws Exception{
+		//FOR
+		LexicalUnit lu = env.getInput().get();
+		//Assignの最初のユニット
+		lu = env.getInput().get();
+		env.getInput().unget(lu);
+		
+		assign = (AssignNode) AssignNode.isMatch(env, lu);
+		if (assign != null) {
+			if(assign.Parse()==true){
+				System.out.println(assign.var.val.getType());
+				
+				lu = env.getInput().get();
+				if(lu.type==LexicalType.TO){
+					lu = env.getInput().get();
+				}
+			}
+		}			
+		//System.out.println(lu);
+		return false;
+	}
+}

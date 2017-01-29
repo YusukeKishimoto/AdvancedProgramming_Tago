@@ -57,9 +57,11 @@ public class CondNode extends Node{
 	
 	@Override
 	public Value getValue(){
-		
-		//System.out.println(leftexpr.getValue().getDValue());
-		//System.out.println(rightexpr.getValue().getDValue());		
+		/*
+		System.out.println(leftexpr.getValue().getDValue());
+		System.out.println(rightexpr.getValue().getDValue());
+		System.out.println(cond_operator);
+		 */
 		switch(cond_operator.type){
 		case EQ:
 			if(leftexpr.getValue().getType() == ValueType.STRING && rightexpr.getValue().getType() == ValueType.STRING){
@@ -70,17 +72,17 @@ public class CondNode extends Node{
 			}
 			if(leftexpr.getValue().getDValue() == rightexpr.getValue().getDValue()) return new ValueImpl(true);
 			return null;
-		case GT:
-			if(leftexpr.getValue().getDValue() < rightexpr.getValue().getDValue()) return new ValueImpl(true);
-			return null;
-		case LT:
+		case GT: //>
 			if(leftexpr.getValue().getDValue() > rightexpr.getValue().getDValue()) return new ValueImpl(true);
 			return null;
-		case GE:
-			if(leftexpr.getValue().getDValue() <= rightexpr.getValue().getDValue()) return new ValueImpl(true);
+		case LT: //<
+			if(leftexpr.getValue().getDValue() < rightexpr.getValue().getDValue()) return new ValueImpl(true);
 			return null;
-		case LE:
+		case GE: //>=
 			if(leftexpr.getValue().getDValue() >= rightexpr.getValue().getDValue()) return new ValueImpl(true);
+			return null;
+		case LE: //<=
+			if(leftexpr.getValue().getDValue() <= rightexpr.getValue().getDValue()) return new ValueImpl(true);
 			return null;
 		case NE:
 			if(leftexpr.getValue().getType() == ValueType.STRING && rightexpr.getValue().getType() == ValueType.STRING){

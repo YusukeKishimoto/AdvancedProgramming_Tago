@@ -1,0 +1,21 @@
+package newlang4;
+
+public class CondNode extends Node{
+	Node leftexpr;
+	LexicalUnit cond_operator;
+	Node rightexpr;
+	
+	private CondNode(Environment env){
+		super.env = env;
+	}
+	private CondNode(Node left, Node right, LexicalUnit op){
+		super.env = env;
+		this.leftexpr = left;
+		this.rightexpr = right;
+	}
+	
+	public static Node getCondition(Environment env, LexicalUnit first) throws Exception{
+		System.out.println(env.getInput().get());
+		return null;
+	}
+}

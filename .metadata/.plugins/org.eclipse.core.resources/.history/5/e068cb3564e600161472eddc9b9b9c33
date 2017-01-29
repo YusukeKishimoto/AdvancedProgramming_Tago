@@ -1,0 +1,15 @@
+package newlang4;
+
+public class SquareRootFunction extends Function{
+	
+	@Override
+	public Value invoke(ExprListNode exprlist){
+		if(exprlist.exprNodeList.size() != 1){
+			System.out.println("Argument is one");
+			return null;
+		}
+		double sqrtval = Math.sqrt(exprlist.exprNodeList.get(0).val.getDValue());		
+		return new ValueImpl(sqrtval);
+	}
+
+}

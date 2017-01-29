@@ -1,0 +1,57 @@
+package newlang4;
+
+import java.util.HashSet;
+import java.util.Set;
+
+public class ExprNode extends Node {
+
+	//	計算をするクラス
+	//	operand: 定数、変数、カッコ、
+	//	operator: + - * /
+	
+	Node body;
+	
+	private ExprNode(Environment env) {
+		super.env = env;
+		super.type = NodeType.EXPR;
+	}
+	
+	private static Set<LexicalType> firstSet = new HashSet<LexicalType>();
+	static {
+		//Syntax.txtより+から始まることは無い
+		//firstSet.add(LexicalType.ADD);		//+
+		firstSet.add(LexicalType.SUB);			//-
+		firstSet.add(LexicalType.LP);			// (
+		firstSet.add(LexicalType.NAME);			// 変数
+		firstSet.add(LexicalType.INTVAL);		// 整数定数
+		firstSet.add(LexicalType.DOUBLEVAL);	// 小数定数
+		firstSet.add(LexicalType.LITERAL);		// 文字列定数
+	}
+	
+	public static Node isMatch(Environment env, LexicalUnit first) {		
+		//System.out.println(first);
+		try {
+			if(!firstSet.contains(first.type)){
+				return null;
+			}		
+			return new ExprNode(env);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@Override
+	public boolean Parse() throws Exception {
+		LexicalUnit firstexpr = env.getInput().get();
+		body = BinaryNode.getOperand(env,firstexpr);
+		if (body != null) {
+			return body.Parse();
+		}
+		return false;
+	}
+
+	public Value getValue() {
+		return body.getValue();
+	}
+}

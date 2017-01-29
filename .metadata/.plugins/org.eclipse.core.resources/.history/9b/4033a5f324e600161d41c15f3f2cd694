@@ -1,0 +1,13 @@
+package newlang4;
+
+public class CallFuncNode extends Node{
+
+	Node expr_list;
+	
+	private CallFuncNode(Environment env){
+		super.env = env;
+	}
+	
+	
+	
+}

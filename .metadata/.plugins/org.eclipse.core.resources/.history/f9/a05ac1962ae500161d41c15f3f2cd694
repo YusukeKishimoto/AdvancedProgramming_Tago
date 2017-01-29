@@ -1,0 +1,57 @@
+package newlang4;
+
+import java.util.HashSet;
+import java.util.Set;
+
+public class CondNode extends Node{
+	Node leftexpr;
+	LexicalUnit cond_operator;
+	Node rightexpr;
+
+	private CondNode(Node left, Node right, LexicalUnit op, Environment env){		
+		super.env = env;
+		super.type = NodeType.COND;
+		this.leftexpr = left;
+		this.rightexpr = right;
+		this.cond_operator = op;
+	}
+	private static Set<LexicalType> CondOperatorSet = new HashSet<LexicalType>();
+	static{
+		CondOperatorSet.add(LexicalType.EQ);
+		CondOperatorSet.add(LexicalType.GT);
+		CondOperatorSet.add(LexicalType.LT);
+		CondOperatorSet.add(LexicalType.GE);
+		CondOperatorSet.add(LexicalType.LE);
+		CondOperatorSet.add(LexicalType.NE);
+	}
+	
+	private static boolean isCondOperator(LexicalUnit operator){
+		if (CondOperatorSet.contains(operator.type)) {
+			return true;
+		}
+		return false;
+	}
+	
+	public static Node getCondition(Environment env, LexicalUnit first) throws Exception{
+		Node left = ExprNode.isMatch(env, first);
+		if(left!=null){
+			if(left.Parse()==false){
+				return null;
+			}
+		}
+		LexicalUnit cond = env.getInput().get();
+		if(isCondOperator(cond)!=true) return null;
+		System.out.print(" "+cond.type+" ");
+		
+		LexicalUnit lu = env.getInput().get();
+		env.getInput().unget(lu);
+		
+		Node right = ExprNode.isMatch(env,lu);
+		if(right!=null){
+			if(right.Parse()==false){
+				return null;
+			}
+		}
+		return new CondNode(left,right,cond,env);
+	}
+}

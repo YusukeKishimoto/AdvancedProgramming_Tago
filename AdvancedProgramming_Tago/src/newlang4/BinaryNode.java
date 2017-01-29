@@ -1,9 +1,12 @@
 package newlang4;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
 
 public class BinaryNode extends Node {
 	
@@ -129,6 +132,9 @@ public class BinaryNode extends Node {
 
 		//exprノードの中身をそれぞれスタックしていこう
 		LexicalUnit lu = firstexpr;
+		List<Node> exprlist = new ArrayList<Node>();
+		boolean callfunc =false;
+		
 		if(lu.type == LexicalType.LITERAL){
 			return new BinaryNode(makeOperandNode(lu),env);
 		}
@@ -139,6 +145,15 @@ public class BinaryNode extends Node {
 		}
 		while(true){
 			if(isOperand(lu)){
+				//取ってきたNAMEがFUNTIONだったら
+				
+				if(lu.getType() == LexicalType.NAME && env.library.containsKey(lu.getValue().getSValue())){
+					operatorDeque.addFirst(lu);									
+					lu = env.getInput().get();
+					callfunc = true;
+					continue;
+				}
+								
 				operandNodeDeque.addFirst(makeOperandNode(lu));
 				//テスト用
 				operandUnit.addFirst(lu);
@@ -158,7 +173,8 @@ public class BinaryNode extends Node {
 				if(lu.type == LexicalType.RP){
 					while(operatorDeque.peekFirst().type != LexicalType.LP){
 						Node RIGHT = operandNodeDeque.removeFirst();
-						Node LEFT = operandNodeDeque.removeFirst();
+						Node LEFT = operandNodeDeque.pollFirst();
+						
 						//テスト用
 						operandUnit.addFirst(operatorDeque.peekFirst());
 						//-----
@@ -166,6 +182,23 @@ public class BinaryNode extends Node {
 					}
 					//(を捨てる
 					operatorDeque.removeFirst();
+
+
+					//関数呼び出しの終わり
+					if(operatorDeque.peekFirst().getType() == LexicalType.NAME){
+						
+						CallFuncNode call = new CallFuncNode(env, operatorDeque.removeFirst().getValue().getSValue());						
+						ExprListNode ee = new ExprListNode(env);
+												
+						for(Node node : exprlist){
+							ee.exprNodeList.add(node);
+						}
+						ee.exprNodeList.add(operandNodeDeque.removeFirst());						
+						call.expr_list = ee;
+						
+						operandNodeDeque.addFirst(call);
+						callfunc = false;
+					}
 				}
 				//トークンが(である場合
 				else if(lu.type == LexicalType.LP){
@@ -198,10 +231,19 @@ public class BinaryNode extends Node {
 			lu = env.getInput().get();
 			if(endSet.contains(lu.type)){
 				env.getInput().unget(lu);
+								
+				if(lu.type == LexicalType.COMMA && callfunc == true){
+					exprlist.add(operandNodeDeque.removeLast());
+					env.getInput().get(); //COMMA
+					lu = env.getInput().get();
+					continue;
+				}
+
 				//既にoperandが無い場合
-				if(operatorDeque.isEmpty()) break;				
+				if(operatorDeque.isEmpty()) break;								
 				//operandがなくなるまでNodeを作る
 				while(!operatorDeque.isEmpty()){
+
 					Node RIGHT = operandNodeDeque.removeFirst();
 					Node LEFT = operandNodeDeque.removeFirst();
 					//テスト用
@@ -212,6 +254,7 @@ public class BinaryNode extends Node {
 				//テスト用
 				//showExpr(operandUnit);
 				//-----
+								
 				return operandNodeDeque.removeLast();
 			}				
 			//return null;
@@ -222,8 +265,6 @@ public class BinaryNode extends Node {
 
 	@Override
 	public boolean Parse() throws Exception {
-		//System.out.println(operandFirst.env.getInput().get());
-		//System.out.print(" ];");
 		return true;
 	}
 	
@@ -231,7 +272,15 @@ public class BinaryNode extends Node {
 	public Value getValue(){
 		//演算子が無い場合
 		if(operator == null){
+			
 			//System.out.println(operandFirst.val.getIValue());
+			if(operandFirst.type == NodeType.BINARY){
+				operandFirst.getValue();
+			}
+
+			if(operandFirst.type == NodeType.FUNCTION_CALL){
+				return operandFirst.getValue();
+			}			
 			if(operandFirst.type == NodeType.VARIABLE){
 				return env.var_table.get(operandFirst.val.getSValue()).val;
 			}else{
@@ -248,12 +297,19 @@ public class BinaryNode extends Node {
 		}
 		if(operandFirst.type == NodeType.VARIABLE){	
 			left = env.var_table.get(operandFirst.val.getSValue()).val.getDValue();		
-		}else{
+		}else if(operandFirst.type == NodeType.FUNCTION_CALL){
+			left = operandFirst.getValue().getDValue();
+		}		
+		else{
 			left = operandFirst.val.getDValue();			
 		}
+		
 		if(operandSecond.type == NodeType.VARIABLE){
 			right = env.var_table.get(operandSecond.val.getSValue()).val.getDValue();
-		}else{
+		}else if(operandSecond.type == NodeType.FUNCTION_CALL){
+			right = operandSecond.getValue().getDValue();
+		}
+		else{
 			right = operandSecond.val.getDValue();
 		}
 		//System.out.print(left);
@@ -268,6 +324,7 @@ public class BinaryNode extends Node {
 				val = new ValueImpl(left-right);
 				break;
 			case DIV:
+				if(right == 0) System.out.println("division by zero");
 				val = new ValueImpl(left/right);
 				break;
 			case MUL:

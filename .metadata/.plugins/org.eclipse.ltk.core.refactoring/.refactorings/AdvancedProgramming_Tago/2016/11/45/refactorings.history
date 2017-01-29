@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;AdvancedProgramming_Tago/SourceProg.bas&apos; to &apos;SourceProg_test.bas&apos;" description="Rename resource &apos;SourceProg.bas&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="SourceProg.bas" name="SourceProg_test.bas" stamp="1477987843795" updateReferences="true"/>
+</session>

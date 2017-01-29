@@ -1,0 +1,78 @@
+package newlang4;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashSet;
+
+public class StmtListNode extends Node {
+	
+	Node stmt;
+	Node block;
+	
+	List<Node> childNodeList = new ArrayList<Node>();
+	private static HashSet<LexicalType> firstSet = new HashSet<>();
+	static{
+		firstSet.add(LexicalType.NAME);
+		firstSet.add(LexicalType.FOR);
+		firstSet.add(LexicalType.IF);
+		firstSet.add(LexicalType.DO);
+		firstSet.add(LexicalType.WHILE);
+		firstSet.add(LexicalType.END);
+	}
+	
+	private StmtListNode(Environment env){
+		super.env = env;
+		super.type = NodeType.STMT_LIST;
+	}
+	
+	public static Node isMatch(Environment env, LexicalUnit first){
+		if(!firstSet.contains(first.type)){
+			return null;
+		}
+		return new StmtListNode(env);
+	}
+
+	@Override
+	public boolean Parse() throws Exception{
+		
+		while(true){
+			//first
+			LexicalUnit lu = env.getInput().get();
+			
+			//NLを読み飛ばす
+			if(lu.getType() == LexicalType.NL) continue;
+			//EOFだったらおしまい
+			//System.out.print(lu);
+			if(lu.type==LexicalType.EOF)return true;
+			
+
+			//NLじゃなかったので戻す。
+			env.getInput().unget(lu);
+			//この時点で lu は一番最初から次のLexicalUnitが格納されていることになる？
+			//ungetした時点でluに前のノードが入らないとまずい　たとえば<NAME>
+			//<NL>を飛ばしてきた場合ungetすると<NL>が入ってしまう？
+			
+			stmt = StmtNode.isMatch(env, lu);
+			if(stmt != null){
+				if(stmt.Parse() == false) return false;
+				childNodeList.add(stmt);
+				continue;
+			}
+			/*
+			block = BlockNode.isMatch(env, lu);
+			if(block != null){
+				if(block.Parse() == false) return false;
+				childNodeList.add(block);
+				continue;
+			}
+			*/
+	
+			return false;
+		}
+	}
+	@Override
+	public Value getValue(){
+		//System.out.println("hello");
+		return stmt.getValue();
+	}
+}

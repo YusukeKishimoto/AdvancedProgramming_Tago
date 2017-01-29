@@ -1,0 +1,15 @@
+package newlang4;
+
+public class PrintFunction extends Function{
+
+	@Override
+	public Value invoke(ExprListNode exprlist){
+	
+		for(Node node : exprlist.exprNodeList){
+			System.out.println(node.getValue());
+			System.out.print(node.getValue().getIValue()+"\t");
+		}
+		
+		return null;
+	}
+}

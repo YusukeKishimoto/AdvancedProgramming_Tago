@@ -1,0 +1,21 @@
+package newlang4;
+
+public class SquareRootFunction extends Function{
+	
+	@Override
+	public Value invoke(ExprListNode exprlist){
+	
+		System.out.println(exprlist.exprNodeList.size());
+		
+		if(exprlist.exprNodeList.size() != 1) return null;
+		
+		for(Node node : exprlist.exprNodeList){
+
+		}
+		
+		System.out.println();
+		
+		return null;
+	}
+
+}

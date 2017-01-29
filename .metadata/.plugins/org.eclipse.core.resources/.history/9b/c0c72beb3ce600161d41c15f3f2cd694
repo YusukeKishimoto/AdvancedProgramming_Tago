@@ -1,0 +1,32 @@
+package newlang4;
+
+public class CallFuncNode extends Node{
+	
+	String func_name;
+	Node expr_list;
+	
+	private CallFuncNode(Environment env, String func_name){
+		super.env = env;
+	}
+	
+	public static Node isMatch(Environment env, LexicalUnit first) throws Exception{
+		
+		if(first.type != LexicalType.NAME) return null;
+		if(env.getInput().peek().type == LexicalType.LP) return new CallFuncNode(env);
+		return null;
+	}
+	
+	@Override
+	public boolean Parse() throws Exception{
+		LexicalUnit lu = env.getInput().get();
+		env.getInput().unget(lu);
+		expr_list = ExprListNode.isMatch(env, lu);
+		if(expr_list == null) return false;
+		
+		if(expr_list.Parse() == false) return false;
+		//System.out.println("Hello");				
+		
+		return false;
+	}
+	
+}

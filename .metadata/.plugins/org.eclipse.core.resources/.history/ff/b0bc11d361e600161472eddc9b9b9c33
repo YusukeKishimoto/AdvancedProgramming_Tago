@@ -1,0 +1,22 @@
+package newlang4;
+
+public class CallFuncNode extends Node{	
+	String func_name;
+	Node expr_list;
+	
+	
+	public CallFuncNode(Environment env, String func_name){
+		super.env = env;
+		super.type = NodeType.FUNCTION_CALL;
+		this.func_name = func_name;
+	}
+	
+	@Override
+	public Value getValue(){
+		
+		System.out.println(func_name);
+		System.out.println(expr_list.getType());
+		
+		return null;
+	}
+}

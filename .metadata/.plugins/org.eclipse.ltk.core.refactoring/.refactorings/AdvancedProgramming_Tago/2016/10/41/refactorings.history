@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move 5 elements to &apos;newlang3/src/newlang3&apos;&#x0A;- Original project: &apos;newlang3&apos;&#x0A;- Destination element: &apos;newlang3/src/newlang3&apos;&#x0A;- Original elements:&#x0A;     LexicalAnalyzer.java&#x0A;     LexicalUnit.java&#x0A;     Value.java&#x0A;     LexicalType.java&#x0A;     ValueType.java&#x0A;- Update references to refactored element" description="Move compilation units" destination="/src&lt;newlang3" element1="/src&lt;{LexicalAnalyzer.java" element2="/src&lt;{LexicalUnit.java" element3="/src&lt;{Value.java" element4="/src&lt;{LexicalType.java" element5="/src&lt;{ValueType.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.move" policy="org.eclipse.jdt.ui.moveResources" qualified="false" references="true" stamp="1475567924348" units="5" version="1.0"/>
+</session>

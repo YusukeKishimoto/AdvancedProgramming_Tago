@@ -11,6 +11,8 @@ public class Environment {
 	        input = my_input;
 	        library = new Hashtable<String, Function>();
 	        library.put("PRINT", new PrintFunction() );
+	        library.put("SQRT", new SquareRootFunction());
+	        library.put("MOD", new ModuloFunction());
 	        var_table = new Hashtable<String, Node>();
 	    }
 	    

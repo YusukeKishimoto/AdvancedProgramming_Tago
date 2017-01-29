@@ -1,0 +1,70 @@
+package newlang4;
+
+import java.util.HashSet;
+import java.util.Set;
+
+public class CallSubNode extends Node{
+	Node expr;
+	
+	private CallSubNode(Environment env){
+		super.env = env;
+		super.type = NodeType.FUNCTION_CALL;
+	}
+	private static Set<LexicalType> firstSet = new HashSet<LexicalType>();
+	static {
+		//Syntax.txtより+から始まることは無い
+		//firstSet.add(LexicalType.ADD);		//+
+		firstSet.add(LexicalType.SUB);			//-
+		firstSet.add(LexicalType.LP);			// (
+		firstSet.add(LexicalType.NAME);			// 変数
+		firstSet.add(LexicalType.INTVAL);		// 整数定数
+		firstSet.add(LexicalType.DOUBLEVAL);	// 小数定数
+		firstSet.add(LexicalType.LITERAL);		// 文字列定数
+	}
+	
+	public static Node isMatch(Environment env, LexicalUnit first){
+		try{
+			//firstを取得
+			LexicalUnit lu = env.getInput().get();;
+			//firstの次を取得
+			lu = env.getInput().get();
+			
+			env.getInput().unget(lu);
+			env.getInput().unget(first);
+						
+			if(!firstSet.contains(lu.type)) return null;			
+			
+			return new CallSubNode(env);
+			
+		}catch (Exception e){
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+	@Override
+	public boolean Parse() throws Exception{
+		LexicalUnit name = env.getInput().get();
+		//lu = <EQ>
+		LexicalUnit lu = env.getInput().get();
+		//lu = <EQ>の次
+		lu = env.getInput().get();
+		env.getInput().unget(lu);
+		
+		var = VariableNode.isMatch(env, name);
+		expr = ExprNode.isMatch(env, lu);
+		if(expr != null){
+			return expr.Parse();
+		}
+		return false;
+	}
+	
+	@Override
+	public Value getValue() {
+		VariableNode v = (VariableNode)var;
+		v.setValue(expr.getValue());
+		return v.getValue();
+	}
+
+}
+

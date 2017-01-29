@@ -1,0 +1,335 @@
+package newlang4;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+
+public class BinaryNode extends Node {
+	
+	Node operandFirst;
+	Node operandSecond;
+	LexicalUnit operator;
+	
+	public BinaryNode(Environment env){
+		super.env = env;
+		super.type = NodeType.BINARY;
+	}		
+	public BinaryNode(Node operandFirst,Environment env){
+		this.operandFirst = operandFirst;
+		super.type = NodeType.BINARY;
+		super.env = env;
+	}
+	public BinaryNode(Node operandFirst, Node operandSecond, LexicalUnit operator, Environment env){
+		this.operandFirst = operandFirst;
+		this.operandSecond = operandSecond;
+		this.operator =  operator;
+		super.type = NodeType.BINARY;
+		super.env = env;
+	}
+	
+	private static Set<LexicalType> operatorSet = new HashSet<LexicalType>();
+	static {
+		//Syntax.txtより+から始まることは無い
+		operatorSet.add(LexicalType.ADD);	// +
+		operatorSet.add(LexicalType.SUB);	// -
+		operatorSet.add(LexicalType.MUL);	// *
+		operatorSet.add(LexicalType.DIV);	// /
+		operatorSet.add(LexicalType.LP);	// (
+		operatorSet.add(LexicalType.RP);	// )
+	
+	}
+	private static Set<LexicalType> operandSet = new HashSet<LexicalType>();
+	static{
+		operandSet.add(LexicalType.INTVAL);
+		operandSet.add(LexicalType.DOUBLEVAL);
+		//operandSet.add(LexicalType.LITERAL);
+		operandSet.add(LexicalType.NAME);
+	}
+	private static Set<LexicalType> endSet = new HashSet<LexicalType>();
+	static{
+		endSet.add(LexicalType.NL);
+		endSet.add(LexicalType.EQ);
+		endSet.add(LexicalType.THEN);
+		endSet.add(LexicalType.ELSE);
+		endSet.add(LexicalType.ELSEIF);
+		endSet.add(LexicalType.ENDIF);
+		endSet.add(LexicalType.COMMA);
+		endSet.add(LexicalType.TO);
+		//比較演算子
+		endSet.add(LexicalType.GT);
+		endSet.add(LexicalType.LT);
+		endSet.add(LexicalType.GE);
+		endSet.add(LexicalType.LE);
+		endSet.add(LexicalType.NE);
+	}
+	
+	public static boolean isOperator(LexicalUnit lu){
+		if(operatorSet.contains(lu.type)) return true;
+		return false;
+	}
+	public static boolean isOperand(LexicalUnit lu){
+		if(operandSet.contains(lu.type)) return true;
+		return false;
+	}
+	public static Deque<Node> operandNodeDeque = new ArrayDeque<Node>();
+	private static Deque<LexicalUnit> operatorDeque = new ArrayDeque<LexicalUnit>();
+	
+	//テスト用
+	private static Deque<LexicalUnit> operandUnit = new ArrayDeque<LexicalUnit>();
+	
+	//数字、リテラルのノードを作る
+	public static Node makeOperandNode(LexicalUnit operand){
+		switch(operand.type){
+		case INTVAL:
+			return new Node(NodeType.INT_CONSTANT,operand.value);
+		case DOUBLEVAL:
+			return new Node(NodeType.DOUBLE_CONSTANT,operand.value);
+		case LITERAL:
+			return new Node(NodeType.STRING_CONSTANT,operand.value);
+		case NAME:
+			return new Node(NodeType.VARIABLE,operand.value);
+		default :return null;
+		}
+	}
+
+	public static void showExpr(Deque<LexicalUnit> operandUnit){
+		//テスト用 -逆ポーランド記法		
+		while(!operandUnit.isEmpty()){
+			if(operandUnit.peekLast().type == LexicalType.ADD){
+				System.out.print("+");
+				operandUnit.removeLast();
+			}else if(operandUnit.peekLast().type == LexicalType.SUB){
+				System.out.print("-");
+				operandUnit.removeLast();
+			}else if(operandUnit.peekLast().type == LexicalType.MUL){
+				System.out.print("*");
+				operandUnit.removeLast();
+			}else if(operandUnit.peekLast().type == LexicalType.DIV){
+				System.out.print("/");
+				operandUnit.removeLast();
+			}else{
+				if(operandUnit.peekLast().type == LexicalType.INTVAL){
+					System.out.print(operandUnit.removeLast().value.getIValue());
+				}
+				else if(operandUnit.peekLast().type == LexicalType.NAME){
+					System.out.print(operandUnit.removeLast().value.getSValue());
+				}else if(operandUnit.peekLast().type == LexicalType.DOUBLEVAL){
+					System.out.print(operandUnit.removeLast().value.getDValue());
+				}
+				else{
+					System.out.print("\""+operandUnit.removeLast().value.getSValue()+"\"");
+				}
+			}
+		}
+		
+	}
+	
+	public static Node getOperand (Environment env, LexicalUnit firstexpr) throws Exception {
+
+		//exprノードの中身をそれぞれスタックしていこう
+		LexicalUnit lu = firstexpr;
+		List<Node> exprlist = new ArrayList<Node>();
+		boolean callfunc =false;
+		
+		if(lu.type == LexicalType.LITERAL){
+			return new BinaryNode(makeOperandNode(lu),env);
+		}
+		if(lu.type == LexicalType.SUB){
+			lu = env.getInput().get();
+			operandNodeDeque.addFirst(makeOperandNode(new LexicalUnit(LexicalType.INTVAL, new ValueImpl(-1))));
+			operatorDeque.add(new LexicalUnit(LexicalType.MUL));
+		}
+		while(true){
+			if(isOperand(lu)){
+				//取ってきたNAMEがFUNTIONだったら
+				
+				if(lu.getType() == LexicalType.NAME && env.library.containsKey(lu.getValue().getSValue())){
+					operatorDeque.add(lu);
+					lu = env.getInput().get();
+					callfunc = true;
+					continue;
+				}
+								
+				operandNodeDeque.addFirst(makeOperandNode(lu));
+				//テスト用
+				operandUnit.addFirst(lu);
+				//-----
+			}
+			if(isOperator(lu)){
+				//)を除いて演算子の次が−の場合
+				if(env.getInput().peek().type == LexicalType.SUB && lu.type != LexicalType.RP){
+					operandNodeDeque.addFirst(makeOperandNode(new LexicalUnit(LexicalType.INTVAL, new ValueImpl(-1))));
+					operatorDeque.add(new LexicalUnit(LexicalType.MUL));
+					operatorDeque.add(lu);
+					env.getInput().get();
+					lu = env.getInput().get();
+					continue;
+				}
+				//トークンが)である場合
+				if(lu.type == LexicalType.RP){
+					while(operatorDeque.peekFirst().type != LexicalType.LP){
+						Node RIGHT = operandNodeDeque.removeFirst();
+						Node LEFT = operandNodeDeque.pollFirst();
+						
+						//テスト用
+						operandUnit.addFirst(operatorDeque.peekFirst());
+						//-----
+						operandNodeDeque.addFirst(new BinaryNode(LEFT,RIGHT,operatorDeque.removeFirst(),env));
+					}
+					//(を捨てる
+					operatorDeque.removeFirst();
+					
+					
+					
+					//関数呼び出しの終わり
+					if(operatorDeque.peekFirst() != null && operatorDeque.peekFirst().getType() == LexicalType.NAME){
+						CallFuncNode call = new CallFuncNode(env, operatorDeque.removeFirst().getValue().getSValue());
+						
+						System.out.println(operandNodeDeque.peekFirst());
+						
+						exprlist.add(operandNodeDeque.removeFirst());						
+						for(Node node : exprlist){
+							call.exprlist.add(node);
+						}						
+						operandNodeDeque.addFirst(call);
+						callfunc = false;
+
+					}
+					
+					
+				}
+				//トークンが(である場合
+				else if(lu.type == LexicalType.LP){
+					operatorDeque.addFirst(lu);
+				}
+				//トークンが+-*/である場合
+				else{
+					while(true){
+						//演算子スタックが空の場合
+						if(operatorDeque.isEmpty()){
+							operatorDeque.addFirst(lu);
+							break;
+						}
+						//演算子スタックが空ではない場合
+						//スタックの最上段の演算子よりトークンの演算子の優先順位が低い時
+						if(operatorDeque.peekFirst().type == LexicalType.MUL ||operatorDeque.peekFirst().type == LexicalType.DIV){						
+							Node RIGHT = operandNodeDeque.removeFirst();
+							Node LEFT = operandNodeDeque.removeFirst();
+							//テスト用
+							operandUnit.addFirst(operatorDeque.peekFirst());
+							//-----
+							operandNodeDeque.addFirst(new BinaryNode(LEFT,RIGHT,operatorDeque.removeFirst(),env));
+						}else{
+							operatorDeque.addFirst(lu);
+							break;
+						}
+					}
+				}
+			}						
+			lu = env.getInput().get();
+			if(endSet.contains(lu.type)){
+				env.getInput().unget(lu);
+				//既にoperandが無い場合
+				//System.out.println(operatorDeque.size());
+				if(operatorDeque.isEmpty()) break;								
+				//operandがなくなるまでNodeを作る
+				while(!operatorDeque.isEmpty()){
+					System.out.println(operandNodeDeque.peekFirst().val.getIValue());
+
+					Node RIGHT = operandNodeDeque.removeFirst();
+					System.out.println(operandNodeDeque.peekFirst().val.getIValue());
+
+					Node LEFT = operandNodeDeque.removeFirst();
+					//テスト用
+					operandUnit.addFirst(operatorDeque.peekFirst());
+					//-----
+					operandNodeDeque.addFirst(new BinaryNode(LEFT,RIGHT,operatorDeque.removeFirst(),env));
+				}
+				//テスト用
+				//showExpr(operandUnit);
+				//-----
+				
+				
+				if(lu.type == LexicalType.COMMA && callfunc == true){
+					exprlist.add(operandNodeDeque.removeLast());
+					env.getInput().get(); //COMMA
+					lu = env.getInput().get();
+					continue;
+				}								
+				return operandNodeDeque.removeLast();
+			}				
+			//return null;
+		}
+		//showExpr(operandUnit);
+		return new BinaryNode(operandNodeDeque.removeFirst(),env);
+	}
+
+	@Override
+	public boolean Parse() throws Exception {
+		//System.out.println(operandFirst.env.getInput().get());
+		//System.out.print(" ];");
+		return true;
+	}
+	
+	@Override
+	public Value getValue(){
+		//演算子が無い場合
+		if(operator == null){
+			
+			//System.out.println(operandFirst.val.getIValue());
+			if(operandFirst.type == NodeType.BINARY){
+				operandFirst.getValue();
+			}
+			if(operandFirst.type == NodeType.VARIABLE){
+				return env.var_table.get(operandFirst.val.getSValue()).val;
+			}else{
+				return operandFirst.val;				
+			}
+		}
+		//演算子がある場合
+		double left,right;
+		if(operandFirst.type == NodeType.BINARY){
+			operandFirst.getValue();
+		}
+		if(operandSecond.type == NodeType.BINARY){
+			operandSecond.getValue();
+		}
+		if(operandFirst.type == NodeType.VARIABLE){	
+			left = env.var_table.get(operandFirst.val.getSValue()).val.getDValue();		
+		}else{
+			left = operandFirst.val.getDValue();			
+		}
+		if(operandSecond.type == NodeType.VARIABLE){
+			right = env.var_table.get(operandSecond.val.getSValue()).val.getDValue();
+		}else{
+			right = operandSecond.val.getDValue();
+		}
+		//System.out.print(left);
+		//System.out.print(operator.type);
+		//System.out.print(right);
+		
+		switch(operator.type){
+			case ADD:
+				val = new ValueImpl(left+right);
+				break;
+			case SUB:
+				val = new ValueImpl(left-right);
+				break;
+			case DIV:
+				if(right == 0) System.out.println("division by zero");
+				val = new ValueImpl(left/right);
+				break;
+			case MUL:
+				val = new ValueImpl(left*right);
+				break;
+			default:
+				break;				
+		}
+		//System.out.println(" = "+val.getDValue());
+		return val;
+	}
+}

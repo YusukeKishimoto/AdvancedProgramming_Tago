@@ -1,4 +1,7 @@
-a = (-1+-3)-3
-PRINT a
-PRINT "OK"
+b = 3*(3+SQRT(2))
+IF b>1 THEN b = SQRT(3)
+PRINT b
+IF b>1 THEN
+PRINT "A"
+ENDIF
 END

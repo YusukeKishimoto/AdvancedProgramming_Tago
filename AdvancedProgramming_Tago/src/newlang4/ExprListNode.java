@@ -8,9 +8,9 @@ import java.util.Set;
 public class ExprListNode extends Node {
 
 	Node body;
-	public List<Node> exprNodeList = new ArrayList<Node>();
+	List<Node> exprNodeList = new ArrayList<Node>();
 	
-	private ExprListNode(Environment env) {
+	public ExprListNode(Environment env) {
 		super.env = env;
 		super.type = NodeType.EXPR_LIST;
 	}
@@ -36,29 +36,24 @@ public class ExprListNode extends Node {
 		return exprNodeList;
 	}
 	
+	public void setExprNode(Node expr){
+		exprNodeList.add(expr);
+	}
+	
 	@Override
 	public boolean Parse() throws Exception {
 		LexicalUnit lu;
 		while(true) {
 			lu = env.getInput().get();			
-			//System.out.println(lu]);
+			//System.out.println(lu);
 			if(lu.getType() == LexicalType.NL){
-				env.getInput().unget(lu);
-				return true;
-			}
-			
-			//関数呼び出しのため
-			if(lu.getType() == LexicalType.RP) return true;
-			
-			//ELSEが来てもおわり
-			if(lu.getType() == LexicalType.ELSE){
 				env.getInput().unget(lu);
 				return true;
 			}
 			
 			//,は読み飛ばしたい
 			if (lu.getType() == LexicalType.COMMA){
-				System.out.print(", ");
+				//System.out.print(", ");
 				lu = env.getInput().get();	
 			}
 			body = ExprNode.isMatch(env, lu);
@@ -71,10 +66,5 @@ public class ExprListNode extends Node {
 			return false;
 		}
 	}
-	/*	
-	@Override
-	public Value getValue() {
-		return body.getValue();
-	}
-	*/
+
 }

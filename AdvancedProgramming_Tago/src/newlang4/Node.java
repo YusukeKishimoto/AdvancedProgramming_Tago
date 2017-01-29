@@ -33,7 +33,7 @@ public class Node {
     }
     
     public Value getValue() {
-        return null;
+        return val;
     }
     
     public String toString() {

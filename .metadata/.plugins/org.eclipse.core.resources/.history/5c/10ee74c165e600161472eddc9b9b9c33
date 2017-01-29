@@ -1,0 +1,11 @@
+package newlang4;
+
+public class ModuloFunc extends Function{
+	@Override
+	public Value invoke(ExprListNode exprlist){
+		if(exprlist.exprNodeList.size() != 2){
+			System.out.println("Argument is two");
+			return null;
+		}
+	}
+}

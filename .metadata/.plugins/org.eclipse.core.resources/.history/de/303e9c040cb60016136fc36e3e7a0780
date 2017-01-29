@@ -1,0 +1,21 @@
+package newlang4;
+
+import java.util.Set;
+
+public class StmtNode extends Node{
+	
+	private static Set<LexicalType> firstSet = new HashSet<LexicalType>();
+	static{
+		firstSet.add(LexicalType.FOR);
+		firstSet.add(LexicalType.NAME);
+		firstSet.add(LexicalType.END);
+		
+	}
+	
+	public static Node isMatch(Environment env, LexicalUnit first){
+		if(firstSet.contains(first.type)){
+			return null;
+		}
+		return new StmtNode(env);
+	}
+}

@@ -1,0 +1,151 @@
+package newlang4;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class IfNode extends Node{
+	
+	public static List<Node> CondAndStmtList = new ArrayList<Node>();
+
+	private IfNode(Environment env){
+		super.env = env;
+		super.type = NodeType.IF_BLOCK;
+	}
+	
+	public static Node isMatch(Environment env, LexicalUnit lu){
+		if (lu.type != LexicalType.IF) {
+			return null;
+		}
+		return new IfNode(env);
+	}
+	
+	@Override
+	public boolean Parse() throws Exception{
+		Node cond;
+		Node stmt;
+		
+		// IF
+		LexicalUnit lu = env.getInput().get();
+		
+		System.out.print("IF : ");
+		
+		// condの先頭
+		lu = env.getInput().get();
+		env.getInput().unget(lu);
+		
+		cond = CondNode.getCondition(env,lu);
+
+		if(cond!=null){
+			
+			CondAndStmtList.add(cond);
+			
+			lu = env.getInput().get();			
+			if(lu.type!=LexicalType.THEN) return false;
+			lu = env.getInput().get();
+			env.getInput().unget(lu);
+			
+			//NLの場合は長いif文
+			if(lu.type == LexicalType.NL){
+				//NLをungetしてるので2回get()する
+				env.getInput().get();
+				
+				lu = env.getInput().get();				
+				env.getInput().unget(lu);
+				stmt = StmtListNode.isMatch(env, lu);
+				if(stmt!=null){
+					if(stmt.Parse()==true){
+						
+						CondAndStmtList.add(stmt);
+						//ENDIF,ELSEIF,ELSEがくる						
+						while(true){
+							lu = env.getInput().get();
+							if(lu.type == LexicalType.ENDIF){
+								//System.out.println(CondAndStmtList.size());
+								return true;
+							}
+														
+							if(lu.type == LexicalType.ELSE){
+								
+								System.out.print("ELSE : ");
+								
+								lu = env.getInput().get();
+								if(lu.type != LexicalType.NL) return false;
+								lu = env.getInput().get();
+								env.getInput().unget(lu);
+								stmt = StmtListNode.isMatch(env,lu);
+								if(stmt!=null){
+									if(stmt.Parse() == true){
+										CondAndStmtList.add(stmt);
+										lu = env.getInput().get();
+										if(lu.type == LexicalType.ENDIF){
+											return true;																				
+										}
+									}
+								}
+								return false;
+							}
+							if(lu.type == LexicalType.ELSEIF){
+								
+								System.out.print("ELSEIF : ");
+								
+								lu = env.getInput().get();
+								env.getInput().unget(lu);
+								
+								cond = CondNode.getCondition(env, lu);
+								if(cond == null) return false;
+								CondAndStmtList.add(cond);
+								lu = env.getInput().get();
+								if(lu.type!=LexicalType.THEN) return false;
+								lu = env.getInput().get();
+								if(lu.type!=LexicalType.NL) return false;
+								lu = env.getInput().get();
+								env.getInput().unget(lu);
+								stmt = StmtListNode.isMatch(env, lu);
+								if(stmt == null) return false;
+								if(stmt.Parse() != true) return false;
+								CondAndStmtList.add(stmt);
+								continue;								
+							}
+						}
+					}
+				}
+				return false;
+			}
+			
+			//NLではない場合
+			stmt = StmtNode.isMatch(env, lu);
+			if(stmt!=null){
+				if(stmt.Parse()!=true) return false;
+				CondAndStmtList.add(stmt);
+			}
+			
+			lu = env.getInput().get();
+			//luがNLならIfNodeが終わり stmt の firstならまだ続く
+			if(lu.getType() == LexicalType.NL) return true;
+			//ELSEじゃないならエラー
+			if(lu.getType() != LexicalType.ELSE) return false;
+			
+			lu = env.getInput().get();
+			env.getInput().unget(lu);
+			
+			stmt = StmtNode.isMatch(env, lu);
+			if(stmt!=null){
+				
+				System.out.print("ELSE : ");
+				
+				if(stmt.Parse()!=true) return false;
+				CondAndStmtList.add(stmt);
+				
+				lu = env.getInput().get();
+				if(lu.getType() == LexicalType.NL){
+					env.getInput().unget(lu);
+					
+					System.out.println(CondAndStmtList.size());
+					
+					return true;
+				}
+			}			
+		}
+		return false;
+	}			
+}

@@ -1,0 +1,7 @@
+package newlang4;
+
+public class CondNode {
+	Node leftexpr;
+	LexicalUnit cond_operator;
+	Node rightexpr;
+}

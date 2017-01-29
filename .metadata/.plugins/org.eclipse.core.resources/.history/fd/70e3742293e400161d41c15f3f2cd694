@@ -1,0 +1,49 @@
+package newlang4;
+
+import java.util.HashSet;
+import java.util.Set;
+
+public class CondNode extends Node{
+	Node leftexpr;
+	LexicalUnit cond_operator;
+	Node rightexpr;
+	
+	private CondNode(Environment env){
+		super.env = env;
+	}
+	private CondNode(Node left, Node right, LexicalUnit op){
+		super.env = env;
+		this.leftexpr = left;
+		this.rightexpr = right;
+	}
+	private static Set<LexicalType> CondOperatorSet = new HashSet<LexicalType>();
+	static{
+		CondOperatorSet.add(LexicalType.EQ);
+		CondOperatorSet.add(LexicalType.GT);
+		CondOperatorSet.add(LexicalType.LT);
+		CondOperatorSet.add(LexicalType.GE);
+		CondOperatorSet.add(LexicalType.LE);
+		CondOperatorSet.add(LexicalType.NE);
+	}
+	
+	private static boolean isCondOperator(LexicalUnit operator){
+		if (CondOperatorSet.contains(operator.type)) {
+			return true;
+		}
+		return false;
+	}
+	
+	public static Node getCondition(Environment env, LexicalUnit first) throws Exception{
+		Node left = ExprNode.isMatch(env, first);
+		if(left!=null){
+			if(left.Parse()==false){
+				return null;
+			}
+		}
+		LexicalUnit cond = env.getInput().get();
+		if(isCondOperator(cond)!=true) return null
+		
+		System.out.println(env.getInput().get());
+		return null;
+	}
+}

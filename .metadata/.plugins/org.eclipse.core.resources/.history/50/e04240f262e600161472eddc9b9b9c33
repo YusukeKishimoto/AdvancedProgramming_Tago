@@ -1,0 +1,21 @@
+package newlang4;
+
+public class SquareRootFunction extends Function{
+	
+	@Override
+	public Value invoke(ExprListNode exprlist){
+			
+		if(exprlist.exprNodeList.size() != 1){
+			System.out.println("Argument is one");
+			return null;
+		}
+		
+		
+		System.out.println(exprlist.exprNodeList.get(0).val.getDValue());
+		
+		System.out.println();
+		
+		return null;
+	}
+
+}

@@ -145,16 +145,23 @@ public class IfNode extends Node{
 	}			
 	
 	@Override
-	public Value getValue(){		
-		for(int i = 0; i<CondAndStmtList.size(); i++){
+	public Value getValue(){
+		for(int i = 0; i<CondAndStmtList.size()-1; i++){
 			if(CondAndStmtList.get(i).getValue() != null){
 				CondAndStmtList.get(i+1).getValue();
 				return null;
 			}
 			i++;
 		}
+		
+		CondAndStmtList.get(1).getValue();
+		
 		if(CondAndStmtList.size()>2){
-			CondAndStmtList.get(CondAndStmtList.size()-1).getValue();
+			if(CondAndStmtList.get(CondAndStmtList.size()-2).type == NodeType.STMT_LIST || CondAndStmtList.get(CondAndStmtList.size()-2).type == NodeType.STMT){
+				CondAndStmtList.get(CondAndStmtList.size()-1).getValue();
+			}
+			//System.out.println( CondAndStmtList.get(CondAndStmtList.size()-2).type );
+			//System.out.println( CondAndStmtList.get(CondAndStmtList.size()-1).type );
 		}
 		return null;
 	}

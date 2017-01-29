@@ -1,0 +1,52 @@
+package newlang4;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashSet;
+
+public class StmtListNode extends Node {
+	
+	
+	List<Node> childNodeList = new ArrayList<Node>();
+	
+	private StmtListNode(Environment env){
+		super.env = env;
+	}
+
+	private static HashSet<LexicalType> FirstSet = new HashSet<>();
+	static{
+		FirstSet.add(LexicalType.NAME);
+	}
+	
+	
+	public static Node isMatch(Environment env, LexicalUnit first){
+		if(FirstSet.contains(first.type)){
+			return null;
+		}
+		return new StmtListNode(env);
+	}
+	
+	@Override
+	public boolean Parse() throws Exception{
+		LexicalUnit lu = env.getInput().get();
+		if(lu.getType() == env.getInput().NL) continue;
+		env.getInput().unget(lu);
+		
+		Node node = StmtNode.isisMatch(env, lu);
+		if(node != null){
+			if(node.Parse() == false) return false;
+			childNodeList.add(node);
+			continue;
+		}
+		node = BlockNode.isMatch(env, lu);
+		if(node != null){
+			if(node.Parse() == false) return false;
+			childNodeList.add(node);
+			continue;
+		}
+		
+		
+		
+		return false;
+	}
+}

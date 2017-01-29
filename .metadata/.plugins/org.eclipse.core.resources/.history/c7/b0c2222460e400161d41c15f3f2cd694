@@ -1,0 +1,9 @@
+package newlang4;
+
+public class PrintFunction extends Function{
+
+	@Override
+	public Value invoke(Node exprlist){
+		return null;
+	}
+}

@@ -1,0 +1,11 @@
+package newlang4;
+
+public class CondNode extends Node{
+	Node leftexpr;
+	LexicalUnit cond_operator;
+	Node rightexpr;
+	
+	private CondNode(Environment env){
+		super.env = env;
+	}
+}

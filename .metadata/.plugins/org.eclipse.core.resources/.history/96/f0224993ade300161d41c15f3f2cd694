@@ -1,0 +1,45 @@
+package newlang4;
+
+public class CallSubNode extends Node{
+	Node exprlist;
+	
+	private CallSubNode(Environment env){
+		super.env = env;
+		super.type = NodeType.SUB_CALL;
+	}
+
+	public static Node isMatch(Environment env, LexicalUnit first){
+		try{			
+			System.out.println(first.value.getSValue());
+			if(env.library.containsKey(first.value.getSValue())){
+				return new CallSubNode(env);
+			}
+			return null;
+						
+		}catch (Exception e){
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+	@Override
+	public boolean Parse() throws Exception{
+		LexicalUnit name = env.getInput().get();
+		//lu = expr_listの最初
+		LexicalUnit lu = env.getInput().get();
+		env.getInput().unget(lu);
+		
+		exprlist = ExprListNode.isMatch(env, lu);
+		if(exprlist != null){
+			return exprlist.Parse();
+		}
+		return false;
+	}
+	
+	@Override
+	public Value getValue() {
+		return null;
+	}
+
+}
+

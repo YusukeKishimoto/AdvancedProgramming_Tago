@@ -1,0 +1,8 @@
+package newlang4;
+
+public class CallFuncNode extends Node{
+
+	Node expr_list;
+	
+	
+}
