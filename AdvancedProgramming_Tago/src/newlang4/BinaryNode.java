@@ -130,8 +130,12 @@ public class BinaryNode extends Node {
 		//exprノードの中身をそれぞれスタックしていこう
 		LexicalUnit lu = firstexpr;
 		if(lu.type == LexicalType.LITERAL){
-			//System.out.print("\""+lu.value.getSValue()+"\"");
 			return new BinaryNode(makeOperandNode(lu),env);
+		}
+		if(lu.type == LexicalType.SUB){
+			lu = env.getInput().get();
+			operandNodeDeque.addFirst(makeOperandNode(new LexicalUnit(LexicalType.INTVAL, new ValueImpl(-1))));
+			operatorDeque.add(new LexicalUnit(LexicalType.MUL));
 		}
 		while(true){
 			if(isOperand(lu)){
@@ -141,6 +145,15 @@ public class BinaryNode extends Node {
 				//-----
 			}
 			if(isOperator(lu)){
+				//)を除いて演算子の次が−の場合
+				if(env.getInput().peek().type == LexicalType.SUB && lu.type != LexicalType.RP){
+					operandNodeDeque.addFirst(makeOperandNode(new LexicalUnit(LexicalType.INTVAL, new ValueImpl(-1))));
+					operatorDeque.add(new LexicalUnit(LexicalType.MUL));
+					operatorDeque.add(lu);
+					env.getInput().get();
+					lu = env.getInput().get();
+					continue;
+				}
 				//トークンが)である場合
 				if(lu.type == LexicalType.RP){
 					while(operatorDeque.peekFirst().type != LexicalType.LP){

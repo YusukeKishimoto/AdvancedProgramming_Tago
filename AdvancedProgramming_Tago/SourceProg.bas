@@ -1,10 +1,4 @@
-a = 2
-b = 10
-i = 3
-DO
-  a = a - 1
-  PRINT "HELLO"
-LOOP UNTIL a > 2
+a = (-1+-3)-3
 PRINT a
 PRINT "OK"
 END
